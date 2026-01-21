@@ -1,0 +1,7 @@
+data/
+*.csv
+*.h5
+*.fits
+*.npy
+*.npz
+
