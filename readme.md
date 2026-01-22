@@ -10,7 +10,7 @@ We construct detector- and filter-specific wisp templates using the non-negative
 Implementation
 ------------
 
-Wisp subtraction should be applied at [stage 2 of the JWST data reduction pipeline](https://jwst-docs.stsci.edu/jwst-science-calibration-pipeline/stages-of-jwst-data-processing#gsc.tab=0).  For a single NIRCam detector, the runtime is about 0.4 seconds per exposure on one CPU core of an Apple M4 Pro. The runtime is 2 seconds when performing joint fitting with the [$1/f$ noise](https://jwst-docs.stsci.edu/known-issues-with-jwst-data/1-f-noise#gsc.tab=0).
+Wisp subtraction should be applied at [stage 2 of the JWST data reduction pipeline](https://jwst-docs.stsci.edu/jwst-science-calibration-pipeline/stages-of-jwst-data-processing#gsc.tab=0).  For a single NIRCam detector, the runtime is about 0.4 seconds per exposure on one CPU core of an Apple M4 Pro. The runtime is 2 seconds when performing joint fitting with the [1/f noise](https://jwst-docs.stsci.edu/known-issues-with-jwst-data/1-f-noise#gsc.tab=0).
 
 The wisp templates are available at [link]. The main interface is the `fit_wisp` function in `nmfwisp.py`, which returns the best fit wisp model and its uncertainty. The only required user input is a source mask, which can be constructed from, for example, long-wavelength NIRCam images.
 
