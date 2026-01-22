@@ -796,7 +796,7 @@ def estimate_wisp_with_1fcorrect(data, err, mask, wisp_path, detector_name, filt
     return wisp, wisp_e
 
 
-def estimate_wisp(data, err, mask, wisp_path, detector_name, filter_name, correct_1f=False):
+def fit_wisp(data, err, mask, wisp_path, detector_name, filter_name, correct_1f=False):
     """
     Estimate wisp. 
 
