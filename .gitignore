@@ -1,4 +1,5 @@
 data/
+*.DS_Store
 *.csv
 *.h5
 *.fits
