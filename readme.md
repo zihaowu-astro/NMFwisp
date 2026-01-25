@@ -16,6 +16,23 @@ The wisp templates are available at [link]. The main interface is the `fit_wisp`
 
 The `developer` directory contains code used to build the wisp template library. 
 
+Installation
+------------
+If you have git installed, the code can be obtained with the following commands:
+```bash
+git clone https://github.com/zihaowu-astro/NMFwisp.git
+cd NMFwisp
+```
+Alternatively, you can also download using the [link](https://github.com/cconroy20/fsps/archive/refs/heads/master.zip)
+
+The wisp template library and example data are available via [GitHub Releases](https://github.com/zihaowu-astro/NMFwisp/releases/tag/v1.0).
+You can also download from the command line (macOS/Linux)
+
+```bash
+curl -L -O https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/nmfwisp-templates-v1.0.tar.gz
+curl -L -O https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/example-data.tar.gz
+```
+
 Example
 -------
 
