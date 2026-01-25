@@ -29,7 +29,7 @@ cd NMFwisp
 2. Download the wisp template library and example data from the [link](https://github.com/zihaowu-astro/NMFwisp/releases/tag/v1.0). Please unzip/untar them before use. You can also download them from the command line (macOS/Linux)
 
 ```bash
-curl -L -O https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/nmfwisp-templates-v1.0.tar.gz
+curl -L -O https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/nmfwisp-templates.tar.gz
 curl -L -O https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/example-data.tar.gz
 ```
 
