@@ -81,3 +81,27 @@ Wisp Morphology
 ------------
 
 ![Demonstration of wisp morphology in all affected NIRCam detectors in the F150W band](doc/all_wisps.jpg)
+
+
+
+Citation
+------------
+If you use this code, please reference [this paper](https://arxiv.org/abs/2601.15958):
+```
+@ARTICLE{2026arXiv260115958W,
+       author = {{Wu}, Zihao and {Johnson}, Benjamin D. and {Eisenstein}, Daniel J. and {Cargile}, Phillip and {Hainline}, Kevin and {Hausen}, Ryan and {Rinaldi}, Pierluigi and {Robertson}, Brant E. and {Tacchella}, Sandro and {Williams}, Christina C. and {Willmer}, Christopher N.~A.},
+        title = "{JWST Advanced Deep Extragalactic Survey (JADES) Data Release 5: Wisp Subtraction with the Non-negative Matrix Factorization Algorithm}",
+      journal = {arXiv e-prints},
+     keywords = {Instrumentation and Methods for Astrophysics, Astrophysics of Galaxies},
+         year = 2026,
+        month = jan,
+          eid = {arXiv:2601.15958},
+        pages = {arXiv:2601.15958},
+          doi = {10.48550/arXiv.2601.15958},
+archivePrefix = {arXiv},
+       eprint = {2601.15958},
+ primaryClass = {astro-ph.IM},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/2026arXiv260115958W},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}
+```
