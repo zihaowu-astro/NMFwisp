@@ -23,9 +23,9 @@ If you have git installed, the code can be obtained with the following commands:
 git clone https://github.com/zihaowu-astro/NMFwisp.git
 cd NMFwisp
 ```
-Alternatively, you can also download using the [link](https://github.com/cconroy20/fsps/archive/refs/heads/master.zip)
+Alternatively, you can download the repository as a ZIP file using the [link](https://github.com/zihaowu-astro/NMFwisp/archive/refs/heads/main.zip).
 
-The wisp template library and example data are available via [GitHub Releases](https://github.com/zihaowu-astro/NMFwisp/releases/tag/v1.0).
+The wisp template library and example data are distributed via [GitHub Releases](https://github.com/zihaowu-astro/NMFwisp/releases/tag/v1.0).
 You can also download from the command line (macOS/Linux)
 
 ```bash
