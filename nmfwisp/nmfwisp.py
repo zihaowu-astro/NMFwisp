@@ -1,6 +1,8 @@
 import numpy as np
 import scipy
 import os
+from pathlib import Path
+from importlib import resources
 from astropy.io import fits
 from scipy.interpolate import interp1d
 from astropy.stats import SigmaClip, sigma_clipped_stats
@@ -605,18 +607,33 @@ def _load_wisp_templates(filename, oversample_factor=None):
     Returns:
         tuple: WISP template (3D ndarray), WISP mask (2D ndarray), high SNR region (2D ndarray).
     """
-    with fits.open(filename) as hdul:
-        wisp_ext = [f'WISP_{i}' for i in range(10) if f'WISP_{i}' in hdul]
-        wisp_template = np.array([hdul[ext].data for ext in wisp_ext])
-        if wisp_template.ndim == 2:  # Ensure 3D format
-            wisp_template = wisp_template[None, :, :]
+    if hasattr(filename, "open") and not isinstance(filename, (str, bytes, os.PathLike)):
+        with filename.open("rb") as fileobj:
+            with fits.open(fileobj) as hdul:
+                wisp_ext = [f'WISP_{i}' for i in range(10) if f'WISP_{i}' in hdul]
+                wisp_template = np.array([hdul[ext].data for ext in wisp_ext])
+                if wisp_template.ndim == 2:  # Ensure 3D format
+                    wisp_template = wisp_template[None, :, :]
 
-        high_snr_region = hdul['MASK_hSNR'].data.astype(bool)
-        wmask = hdul['MASK'].data.astype(bool)
-        if 'ERR' in hdul:
-            template_err = hdul['ERR'].data
-        else:
-            template_err = None
+                high_snr_region = hdul['MASK_hSNR'].data.astype(bool)
+                wmask = hdul['MASK'].data.astype(bool)
+                if 'ERR' in hdul:
+                    template_err = hdul['ERR'].data
+                else:
+                    template_err = None
+    else:
+        with fits.open(filename) as hdul:
+            wisp_ext = [f'WISP_{i}' for i in range(10) if f'WISP_{i}' in hdul]
+            wisp_template = np.array([hdul[ext].data for ext in wisp_ext])
+            if wisp_template.ndim == 2:  # Ensure 3D format
+                wisp_template = wisp_template[None, :, :]
+
+            high_snr_region = hdul['MASK_hSNR'].data.astype(bool)
+            wmask = hdul['MASK'].data.astype(bool)
+            if 'ERR' in hdul:
+                template_err = hdul['ERR'].data
+            else:
+                template_err = None
 
     # Apply oversampling if required
     if oversample_factor is not None:
@@ -636,16 +653,33 @@ def load_wisp_templates(wisp_path, detector_name, filter_name):
     """
     High-level function to load WISP templates from a given path.
     """
-    path, det, filt = wisp_path, detector_name, filter_name
-    wisp_path_sampled = f"{path}/{det}/{det}_{filt}_wisp.fits"
-    wisp_path_org = f"{path}/{det}_org/{det}_{filt}_wisp.fits"
+    det, filt = detector_name, filter_name
+    if wisp_path is None:
+        path = resources.files("nmfwisp").joinpath("templates")
+    else:
+        path = Path(wisp_path)
 
-    if os.path.exists(wisp_path_org):
-        wisp_template, template_err, wmask, high_snr_region = _load_wisp_templates(wisp_path_org, oversample_factor=(1, 1))
+    sampled_base = path.joinpath(det)
+    org_base = path.joinpath(f"{det}_org")
 
-    elif os.path.exists(wisp_path_sampled):
-        wisp_template, template_err, wmask, high_snr_region = _load_wisp_templates(wisp_path_sampled, oversample_factor=(4, 4))
+    org_file = None
+    sampled_file = None
+    for ext in (".fits", ".fits.gz"):
+        candidate = org_base.joinpath(f"{det}_{filt}_wisp{ext}")
+        if candidate.is_file():
+            org_file = candidate
+            break
 
+    for ext in (".fits", ".fits.gz"):
+        candidate = sampled_base.joinpath(f"{det}_{filt}_wisp{ext}")
+        if candidate.is_file():
+            sampled_file = candidate
+            break
+
+    if org_file is not None:
+        wisp_template, template_err, wmask, high_snr_region = _load_wisp_templates(org_file, oversample_factor=(1, 1))
+    elif sampled_file is not None:
+        wisp_template, template_err, wmask, high_snr_region = _load_wisp_templates(sampled_file, oversample_factor=(4, 4))
     else:
         return None, None, None, None
 
@@ -725,7 +759,8 @@ def estimate_wisp_standard(data, err, mask, wisp_path, detector_name, filter_nam
     detector_name = detector_name.lower()
     filter_name = filter_name.upper()
 
-    assert os.path.exists(wisp_path), f"Wisp path does not exist: {wisp_path}"
+    if wisp_path is not None:
+        assert os.path.exists(wisp_path), f"Wisp path does not exist: {wisp_path}"
     if filter_name == 'F070W':
         Warning("F070W does not have wisps, return zero array.")
         wisp = np.zeros_like(data)
@@ -797,7 +832,7 @@ def estimate_wisp_with_1fcorrect(data, err, mask, wisp_path, detector_name, filt
     return wisp, wisp_e
 
 
-def fit_wisp(data, err, mask, wisp_path, detector_name, filter_name, correct_1f=False):
+def fit_wisp(data, err, mask, wisp_path=None, detector_name=None, filter_name=None, correct_1f=False):
     """
     Estimate wisp. 
 
@@ -812,6 +847,8 @@ def fit_wisp(data, err, mask, wisp_path, detector_name, filter_name, correct_1f=
     Estimated wisp and its uncertainty.
 
     """
+    assert detector_name is not None, "detector_name is required"
+    assert filter_name is not None, "filter_name is required"
     if correct_1f:
         wisp, wisp_e = estimate_wisp_with_1fcorrect(data, err, mask, wisp_path, detector_name, filter_name)
     else:

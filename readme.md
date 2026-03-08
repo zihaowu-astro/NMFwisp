@@ -12,25 +12,26 @@ Implementation
 
 Wisp subtraction should be applied at [Stage 2 of the JWST data reduction pipeline](https://jwst-docs.stsci.edu/jwst-science-calibration-pipeline/stages-of-jwst-data-processing#gsc.tab=0).  For a single NIRCam detector, the runtime is about 0.4 seconds per exposure on one CPU core of an Apple M4 Pro. The runtime is 2 seconds when performing joint fitting with [1/f noise](https://jwst-docs.stsci.edu/known-issues-with-jwst-data/1-f-noise#gsc.tab=0).
 
-The wisp templates are available at [link]. The main interface is the `fit_wisp` function in `nmfwisp.py`, which returns the best fit wisp model and its uncertainty. The only required user input is a source mask, which can be constructed from long-wavelength NIRCam images.
+The main interface is the `fit_wisp` function in `nmfwisp.py`, which returns the best-fit wisp model and its uncertainty. The package distributes the template library directly as package data, so users can run with the default bundled templates immediately after installation.
+
+The bundled templates make the package relatively large (compressed templates are about 80 MB).
 
 The `developer` directory contains code used to build the wisp template library. 
 
 Installation
 ------------
-1. If you have git installed, the code can be obtained with the following commands:
+Install from PyPI:
+
+```bash
+pip install nmfwisp
+```
+
+For development install from source:
 
 ```bash
 git clone https://github.com/zihaowu-astro/NMFwisp.git
 cd NMFwisp
-```
-​	Alternatively, you can download the repository as a ZIP file from the [link](https://github.com/zihaowu-astro/NMFwisp/archive/refs/heads/main.zip).
-
-2. Download the wisp template library and example data from the [link](https://github.com/zihaowu-astro/NMFwisp/releases/tag/v1.0). Please unzip/untar them before use. You can also download them from the command line (macOS/Linux)
-
-```bash
-curl -L -O https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/nmfwisp-templates.tar.gz
-curl -L -O https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/example-data.tar.gz
+pip install -e .
 ```
 
 Example
@@ -43,7 +44,6 @@ import numpy as np
 
 filter_name = 'F150W'
 detector_name = 'nrcb4'
-wisp_path = './library'
 
 # Example file
 filename = './data/jw01286001001_07201_00003_nrcb4_rate.fits'
@@ -55,7 +55,23 @@ mask = fits.open(maskfile)[0].data
 
 # Fit wisps
 from nmfwisp import fit_wisp
-wisp, wisp_e = fit_wisp(data, err, mask, wisp_path, detector_name, filter_name, correct_1f=False)
+wisp, wisp_e = fit_wisp(
+    data, err, mask,
+    detector_name=detector_name,
+    filter_name=filter_name,
+    correct_1f=False
+)
+```
+
+To use a custom template library path instead of bundled templates:
+```py
+wisp, wisp_e = fit_wisp(
+    data, err, mask,
+    wisp_path='/path/to/templates',
+    detector_name=detector_name,
+    filter_name=filter_name,
+    correct_1f=False
+)
 ```
 
 Visualization of the wisp subtraction result:
