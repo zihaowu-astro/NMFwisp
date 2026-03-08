@@ -4,7 +4,7 @@ NMFwisp subtracts wisps from JWST/NIRCam images using data-driven, detector- and
 
 [Wisps](https://jwst-docs.stsci.edu/known-issues-with-jwst-data/nircam-known-issues/nircam-scattered-light-artifacts#:~:text=Figure%204.%20Claws%20and%20wisps) are scattered-light artifacts in JWST/NIRCam images. They usually appear in the same locations on NIRCam detectors with mild morphological variation between observations. Wisps are a significant source of contamination for objects fainter than 25 AB mag.
 
-The template library is built with the Non-negative Matrix Factorization (NMF) algorithm, using extensive NIRCam data from JADES and other programs. Compared with single-template approaches, the NMF-based method captures wisp morpholigical variation and the low-surface-brightness, extended outskirts of the wisps.
+The template library is built using the Non-negative Matrix Factorization (NMF) algorithm, leveraging extensive NIRCam data from JADES and other programs. Compared with single-template approaches, the NMF-based method captures exposure-to-exposure wisp morpholigical variation, while retaining sensitivity to the low-surface-brightness structure of the wisps.
 
 ## Implementation Notes
 
