@@ -7,6 +7,7 @@ from astropy.stats import SigmaClip, sigma_clipped_stats
 from photutils.background import Background2D, SExtractorBackground
 import warnings
 
+__all__ = ["fit_wisp"]
 
 # ---- Core Solvers for Amplitudes ----
 

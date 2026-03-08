@@ -1,4 +1,14 @@
 data/
+
+nmfwisp/version.py
+
+__pycache__/*
+nmfwisp/__pycache__/*
+nmfwisp/tests/__pycache__/*
+
+nmfwisp.egg-info/*
+build/*
+
 *.DS_Store
 *.csv
 *.h5
