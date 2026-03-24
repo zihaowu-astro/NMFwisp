@@ -5,8 +5,7 @@ from pathlib import Path
 from importlib import resources
 from astropy.io import fits
 from scipy.interpolate import interp1d
-from astropy.stats import SigmaClip, sigma_clipped_stats
-from photutils.background import Background2D, SExtractorBackground
+from astropy.stats import sigma_clipped_stats
 import warnings
 
 __all__ = ["fit_wisp"]
@@ -560,18 +559,6 @@ def subtract_median(data, *mask):
     median = np.nanmedian(data[~mask])
     return data - median
 
-
-def subtract_2Dbkg(data, box_size=(128, 128), filter_size=(3, 3)):
-    """
-    Subtract 2D background from the data.
-    """
-    bkg_estimator = SExtractorBackground()
-    bkg2D = Background2D(data, box_size,
-                        filter_size=filter_size,
-                        sigma_clip=SigmaClip(sigma=3., maxiters=5),
-                        bkg_estimator=bkg_estimator)
-    data -= bkg2D.background
-    return data, bkg2D.background
 
 def config_bool_weighted(det, filter_name):
     if det.lower() == 'nrcb4':
