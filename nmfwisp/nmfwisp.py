@@ -560,13 +560,6 @@ def subtract_median(data, *mask):
     return data - median
 
 
-def config_bool_weighted(det, filter_name):
-    if det.lower() == 'nrcb4':
-        if filter_name.lower() in ['f150w', 'f200w']:
-            return True
-    return False
-
-
 # ---- io functions ----
 
 def oversample(data, factor=(4, 4)):
