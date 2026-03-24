@@ -6,19 +6,7 @@ NMFwisp subtracts wisps from JWST/NIRCam images using data-driven, detector- and
 
 The template library is built using the Non-negative Matrix Factorization (NMF) algorithm, leveraging extensive NIRCam data from JADES and other programs. Compared with single-template approaches, the NMF-based method captures exposure-to-exposure wisp morpholigical variation, while retaining sensitivity to the low-surface-brightness structure of the wisps.
 
-## Implementation Notes
-
-Wisp subtraction is intended for [Stage 2 of the JWST calibration pipeline](https://jwst-docs.stsci.edu/jwst-science-calibration-pipeline/stages-of-jwst-data-processing#gsc.tab=0).
-
-Typical runtime on one CPU core (Apple M4 Pro):
-- ~0.4 s per exposure for standard fitting
-- ~2 s per exposure with iterative [1/f noise](https://jwst-docs.stsci.edu/known-issues-with-jwst-data/1-f-noise#gsc.tab=0) correction
-
-The main user interface is `fit_wisp`, which returns the best-fit wisp model and its uncertainty.
-
-Templates are distributed directly with the package, so default usage does not require a separate template download. Because of this, the package is relatively large (compressed templates are about 80 MB).
-
-The `developer/` directory contains scripts used to build the template library.
+Wisp subtraction is intended for [Stage 2 of the JWST calibration pipeline](https://jwst-docs.stsci.edu/jwst-science-calibration-pipeline/stages-of-jwst-data-processing#gsc.tab=0). The main user interface is the `fit_wisp` funciton, which returns the best-fit wisp model and its uncertainty. Templates are distributed with the package in the `nmfwisp/templates` folder. The `developer/` directory contains scripts used to build the template library. The package size is 82 MB including the templates. Typical runtime on one CPU core (Apple M4 Pro) is ~0.4 s per exposure for standard fitting and ~2 s per exposure with iterative [1/f noise](https://jwst-docs.stsci.edu/known-issues-with-jwst-data/1-f-noise#gsc.tab=0) correction. 
 
 ## Installation
 
@@ -36,9 +24,9 @@ cd NMFwisp
 pip install -e .
 ```
 
-## Example Data (Optional)
+## Example
 
-To run the example below, download the sample dataset:
+Example Data (Optional): to run the example below, download the sample dataset:
 
 ```bash
 curl -L -O https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/example-data.tar.gz
@@ -47,7 +35,7 @@ tar -xzf example-data.tar.gz
 
 Direct download link: [example-data.tar.gz](https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/example-data.tar.gz)
 
-## Example
+
 
 ```python
 from astropy.io import fits
