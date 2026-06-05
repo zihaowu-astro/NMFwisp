@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NMFwisp documentation</title>
+    <meta
+      name="description"
+      content="Documentation for NMFwisp, a Python package for subtracting JWST/NIRCam wisp artifacts with NMF templates."
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="project" href="#top">NMFwisp</a>
+        <button class="menu-button" type="button" aria-expanded="false" aria-controls="sidebar">
+          Contents
+        </button>
+      </div>
+    </header>
+
+    <div class="layout" id="top">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-title">NMFwisp</div>
+        <nav aria-label="Documentation navigation">
+          <p class="nav-caption">User Guide</p>
+          <a href="#overview">Overview</a>
+          <a href="#installation">Installation</a>
+          <a href="#quickstart">Quickstart</a>
+          <a href="#components">NMF Components</a>
+          <a href="#templates">Templates</a>
+          <a href="#advanced">Advanced Usage</a>
+          <p class="nav-caption">Reference</p>
+          <a href="#api">API Reference</a>
+          <a href="developer-api.html">Developer API</a>
+          <a href="#wisp-morphology-variation">Wisp Morphology Variation</a>
+          <a href="#citation">Citation</a>
+          <a href="https://github.com/zihaowu-astro/nmfwisp">Repository</a>
+          <a href="https://arxiv.org/pdf/2601.15958">Paper PDF</a>
+        </nav>
+      </aside>
+
+    
+    <main class="content" id="main-content">
+      <h1>NMFwisp</h1>
+
+      <p class="lead">
+        NMFwisp subtracts wisp artifacts from JWST/NIRCam images
+        using multi-component, detector- and filter-specific templates built with
+        the non-negative matrix factorization (NMF) algorithm. This is the
+        standard wisp-subtraction method adopted in the JWST Advanced Deep Extragalactic Survey (JADES) Data Release 5 reduction pipeline and is described in the JADES data release paper:
+        <a href="https://arxiv.org/pdf/2601.15958">arXiv:2601.15958</a>.
+      </p>
+
+      <p class="lead">
+        Compared with conventional single-template corrections, the multi-component
+        template framework captures wisp morphological variation more effectively,
+        reducing residual artifacts and improving photometry in wisp-affected regions.
+      </p>
+
+      <section id="overview">
+        <h2>Overview</h2>
+
+        <p>
+          Wisps are scattered-light artifacts that appear in JWST/NIRCam
+          short-wavelength images. NMFwisp models this structure with a compact
+          template basis and returns both the best-fit wisp model and its uncertainty.
+        </p>
+
+        <p>
+          Because wisps exhibit significant morphological variation
+          (see examples <a href="#wisp-morphology-variation">here</a>),
+          traditional subtraction methods based on a single template can leave
+          residuals, especially when the wisp morphology differs substantially from
+          the reference template. The NMF method captures this variation using a
+          multi-component wisp basis.
+        </p>
+
+        <p>
+          NMFwisp is designed for simple implementation. In most cases, users only need to call <code>fit_wisp</code>. Wisp templates are downloaded automatically with the package, which are learned from the deep, extensive JADES data. The wisp subtraction should be applied in the Stage 2 JWST calibration before 1/f correction. 
+        </p>
+
+        <p> 
+          For questions about the code, please contact Zihao Wu (<a href="mailto:zihao.wu@cfa.harvard.edu">zihao.wu@cfa.harvard.edu</a>).
+        </p>
+      </section>
+
+
+
+
+        <section id="installation">
+          <h2>Installation</h2>
+          <p>Install the released package from PyPI:</p>
+          <pre><code>pip install nmfwisp</code></pre>
+          <p>For a development install from source:</p>
+          <pre><code>git clone https://github.com/zihaowu-astro/NMFwisp.git
+cd NMFwisp
+pip install -e .</code></pre>
+          <p>
+            NMFwisp requires NumPy, Astropy, and SciPy.
+          </p>
+        </section>
+
+        <section id="quickstart">
+          <h2>Quickstart</h2>
+          <p>
+            The following example loads a NIRCam exposure, estimates the wisp
+            model, and subtracts it from the science image.
+          </p>
+          <pre><code>from astropy.io import fits
+import matplotlib.pyplot as plt
+import numpy as np
+from nmfwisp import fit_wisp
+
+filter_name = "F150W"
+detector_name = "nrcb4"
+
+filename = "./data/jw01286001001_07201_00003_nrcb4_rate.fits"
+maskfile = "./data/jw01286001001_07201_00003_nrcb4_cal_bkgsub_tweak_smask-full.fits"
+
+data = fits.open(filename)["SCI"].data
+err = fits.open(filename)["ERR"].data
+mask = fits.open(maskfile)[0].data.astype(bool)
+
+wisp, wisp_e = fit_wisp(
+    data,
+    err,
+    mask,
+    detector_name=detector_name,
+    filter_name=filter_name,
+    correct_1f=False,
+)
+
+corrected = data - wisp</code></pre>
+
+          <figure>
+            <img src="example.png" alt="Example NMFwisp subtraction showing data, corrected data, and wisp model.">
+            <figcaption>Example data, wisp-subtracted data, and fitted wisp model.</figcaption>
+          </figure>
+        </section>
+
+        <section id="api">
+          <h2>API Reference</h2>
+          <section class="api-item">
+            <h3><code>fit_wisp</code></h3>
+            <pre><code>fit_wisp(data, err, mask, wisp_path=None, 
+         detector_name=None, filter_name=None, correct_1f=False)</code></pre>
+            <p>
+              Estimate the wisp model and its uncertainty for one exposure or a
+              stack of exposures.
+            </p>
+            <dl>
+              <dt><code>wisp_path</code></dt>
+              <dd>
+                Optional path to a custom template directory. If omitted, the
+                bundled package templates are used, which is optimized using the JADES data.
+              </dd>
+              <dt><code>detector_name</code></dt>
+              <dd>
+                Required detector name, for example <code>"nrcb4"</code>.
+              </dd>
+              <dt><code>filter_name</code></dt>
+              <dd>
+                Required filter name, for example <code>"F150W"</code>.
+              </dd>
+              <dt><code>correct_1f</code></dt>
+              <dd>
+                If <code>True</code>, fit the wisp model with iterative 1/f
+                correction.
+              </dd>
+            </dl>
+            <p>Returns <code>wisp, wisp_e</code>.</p>
+          </section>
+        </section>
+
+        <section id="components">
+          <h2>NMF Components</h2>
+          <p>
+            The NMF template library represents wisps as a combination of
+            multiple components. These components capture the main variations
+            while keeping the fit constrained to recurring detector features.
+          </p>
+          <figure>
+            <img src="wisp_components.png" alt="Multi-component NMF wisp features.">
+            <figcaption>Multi-component wisp features used by the NMF template basis.</figcaption>
+          </figure>
+        </section>
+
+        <section id="templates">
+          <h2>Templates</h2>
+          <p>
+            Bundled templates are available for the detector/filter combinations
+            distributed in <code>nmfwisp/templates</code>. The package checks
+            the following detectors and filters.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Values</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>NIRCam detectors</td>
+                <td><code>nrca3</code>, <code>nrca4</code>, <code>nrcb3</code>, <code>nrcb4</code></td>
+              </tr>
+              <tr>
+                <td>NIRCam filters</td>
+                <td><code>F090W</code>, <code>F115W</code>, <code>F150W</code>, <code>F200W</code>, <code>F162M</code>, <code>F182M</code>, <code>F210M</code></td>
+              </tr>
+              <tr>
+                <td>Wisp-free cases</td>
+                <td><code>F070W</code>, <code>nrca1</code>, <code>nrca2</code>, <code>nrcb1</code>, <code>nrcb2</code></td>
+              </tr>
+            </tbody>
+          </table>
+          <figure>
+            <img src="all_wisps.jpg" alt="Wisp morphology across affected NIRCam detectors in F150W.">
+            <figcaption>Wisp morphology across affected NIRCam detectors in F150W.</figcaption>
+          </figure>
+        </section>
+
+        <section id="advanced">
+          <h2>Advanced Usage</h2>
+          <h3>Custom template path</h3>
+          <p>
+            We recommend using the default wisp templates bundled with the
+            package. If you want to use wisp templates built from your own data,
+            set <code>wisp_path</code> to the custom template directory as shown
+            below. The custom directory should follow the same detector/filter
+            layout as the bundled templates. Code for building NMF wisp
+            templates is documented on the
+            <a href="developer-api.html">Developer API</a> page.
+          </p>
+          <pre><code>wisp, wisp_e = fit_wisp(
+    data,
+    err,
+    mask,
+    wisp_path="/path/to/templates",
+    detector_name="nrcb4",
+    filter_name="F150W",
+)</code></pre>
+
+          <h3>Iterative 1/f correction</h3>
+          <p>
+            Set <code>correct_1f=True</code> to fit the wisps and 1/f noise simultaneously. We recommend enabling this option because residual 1/f noise can bias the wisp fit. A prior 1/f correction is often imperfect due to wisp contamination, so the iterative correction can further reduce 1/f residuals and improve the inferred wisp flux.</p>
+           <p> We use a fast, median-based 1/f correction algorithm. The correction is applied only internally during the wisp fit; it improves the wisp-flux inference but does not directly subtract 1/f noise from the data. We recommend applying additoinal 1/f correction using more advanced methods after subtracting wisps. </p> 
+          </p>
+          <pre><code>wisp, wisp_e = fit_wisp(
+    data,
+    err,
+    mask,
+    detector_name="nrcb4",
+    filter_name="F150W",
+    correct_1f=True,
+)</code></pre>
+        </section>
+
+        <section id="wisp-morphology-variation">
+          <h2>Wisp Morphology Variation</h2>
+          <p>
+            Wisp morphology is not perfectly fixed between observations. A
+            traditional single-template subtraction cannot adapt to these shape
+            changes, so it can leave residual wisp structure or subtract the
+            artifact imperfectly.
+          </p>
+          <figure>
+            <img src="wisp_variation_example.jpg" alt="Example showing variation in wisp morphology between observations.">
+            <figcaption>Observed wisp morphology varies between exposures.</figcaption>
+          </figure>
+        </section>
+
+        <section id="citation">
+          <h2>Citation</h2>
+          <p>
+            If you use NMFwisp, please cite the associated paper. The paper PDF
+            is available at
+            <a href="https://arxiv.org/pdf/2601.15958">arXiv:2601.15958</a>.
+          </p>
+          <pre><code>@ARTICLE{2026arXiv260115958W,
+       author = {{Wu}, Zihao and {Johnson}, Benjamin D. and {Eisenstein}, Daniel J. and {Cargile}, Phillip and {Hainline}, Kevin and {Hausen}, Ryan and {Rinaldi}, Pierluigi and {Robertson}, Brant E. and {Tacchella}, Sandro and {Williams}, Christina C. and {Willmer}, Christopher N.~A.},
+        title = "{JWST Advanced Deep Extragalactic Survey (JADES) Data Release 5: Wisp Subtraction with the Non-negative Matrix Factorization Algorithm}",
+      journal = {arXiv e-prints},
+     keywords = {Instrumentation and Methods for Astrophysics, Astrophysics of Galaxies},
+         year = 2026,
+        month = jan,
+          eid = {arXiv:2601.15958},
+        pages = {arXiv:2601.15958},
+          doi = {10.48550/arXiv.2601.15958},
+archivePrefix = {arXiv},
+       eprint = {2601.15958},
+ primaryClass = {astro-ph.IM},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/2026arXiv260115958W},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}</code></pre>
+        </section>
+        <footer class="doc-footer">
+          <p>&copy; 2026 Zihao Wu. This website is built with assistance from Codex.</p>
+        </footer>
+      </main>
+    </div>
+
+    <script src="site.js"></script>
+  </body>
+</html>

@@ -91,11 +91,11 @@ plt.tight_layout()
 plt.show()
 ```
 
-![](doc/example.png)
+![](docs/example.png)
 
 ## Wisp Morphology
 
-![Demonstration of wisp morphology in all affected NIRCam detectors in the F150W band](doc/all_wisps.jpg)
+![Demonstration of wisp morphology in all affected NIRCam detectors in the F150W band](docs/all_wisps.jpg)
 
 ## Citation
 

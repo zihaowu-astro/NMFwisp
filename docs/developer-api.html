@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NMFwisp developer API</title>
+    <meta
+      name="description"
+      content="Developer API notes for the NMFwisp template-building code."
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="project" href="index.html">NMFwisp</a>
+        <button class="menu-button" type="button" aria-expanded="false" aria-controls="sidebar">
+          Contents
+        </button>
+      </div>
+    </header>
+
+    <div class="layout" id="top">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-title">NMFwisp</div>
+        <nav aria-label="Developer API navigation">
+          <p class="nav-caption">Documentation</p>
+          <a href="index.html">User Guide</a>
+          <a href="developer-api.html">Developer API</a>
+          <p class="nav-caption">Developer API</p>
+          <a href="#overview">Overview</a>
+          <a href="#preprocess">Preprocessing</a>
+          <a href="#nmf">NMF Fitting</a>
+          <a href="#postprocess">Postprocessing</a>
+          <a href="#utils">Utilities</a>
+        </nav>
+      </aside>
+
+      <main class="content" id="main-content">
+        <h1>Developer API</h1>
+
+        <p class="lead">
+          This page summarizes the template-building code in <code>developer/</code>.
+          These routines are intended for constructing, inspecting, and validating
+          wisp templates. This is intended for advanced users who need to build wisp templates using their own data.
+        </p>
+
+        <section id="overview">
+          <h2>Overview</h2>
+          <p>
+            The developer notebook workflow is 1. <code>preprocess.ipynb</code>
+            2. <code>nmf.ipynb</code>.  </p>
+            
+          <p>
+            <code>preprocess.ipynb</code>
+            prepares the data for NMF fitting, including applying the flat field, masking sources, masking bad pixels,
+            and identifying the wisp region. 
+          </p>
+          
+          <p>
+            <code>nmf.ipynb</code> builds the
+             wisp multi-component template using the NMF algorithm.
+          </p>
+
+          
+          <h3>Notebooks</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Notebook</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>preprocess.ipynb</code></td>
+                  <td>Preprocesses the data by applying the flat field, masking sources, masking bad pixels, and identifying the wisp region.</td>
+                </tr>
+                <tr>
+                  <td><code>nmf.ipynb</code></td>
+                  <td>Builds the NMF wisp template.</td>
+                </tr>
+                <tr>
+                  <td><code>nmf_withflat.ipynb</code></td>
+                  <td>(Experimental) Wisp fits joint with flat field fitting.</td>
+                </tr>
+              </tbody>
+            </table>
+        
+        
+    
+        <h3>Core Code Modules</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Module</th>
+                <th>Role</th>
+                <th>Main outputs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>preprocess.py</code></td>
+                <td>Background subtraction, masks, 1/f correction, wisp-region detection.</td>
+                <td>flat and 1/f-corrected data, source masks, wisp region.</td>
+              </tr>
+              <tr>
+                <td><code>nmf.py</code></td>
+                <td>Core weighted NMF fitting on vectorized images.</td>
+                <td>NMF templates and their amplitudes in each exposure.</td>
+              </tr>
+              <tr>
+                <td><code>nmf_beta.py</code></td>
+                <td>(Experimental) NMF variants with iterative 1/f correction and flat fitting.</td>
+                <td>NMF templates, amplitudes in each exposure, and best-fit flat field.</td>
+              </tr>
+              <tr>
+                <td><code>postprocess.py</code></td>
+                <td>Residual-based bias and uncertainty estimation.</td>
+                <td>Wisp bias and wisp uncertainty maps.</td>
+              </tr>
+              <tr>
+                <td><code>utils.py</code></td>
+                <td>FITS loading, CRDS flat handling, plotting.</td>
+                <td>Loaded arrays, quick-look figures, outlier identification.</td>
+              </tr>
+            </tbody>
+          </table>
+        
+        </section>
+        
+
+        <section id="preprocess">
+          <h2>Preprocessing</h2>
+
+          <section class="api-item">
+            <h3><code>estimate_background(data, mask)</code></h3>
+            <p>
+              Estimates one scalar background per exposure from unmasked finite
+              pixels using sigma-clipped statistics.
+            </p>
+            <p>Returns <code>bg</code> with shape <code>(n_exp,)</code>.</p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>calibrate_rates(rates, error, flat, mask, wisp_mask)</code></h3>
+            <p>
+              Applies flat-field calibration, estimates the background outside
+              the science and wisp masks, and returns a background-subtracted
+              stack.
+            </p>
+            <p>Returns <code>bsub, cal_e, bg</code>.</p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>correct_1f_noise(data, mask, wisp_mask=None, split_amplifier=False, beta_version=True)</code></h3>
+            <p>
+              Estimates horizontal and vertical stripe structure and subtracts it
+              from a 3D stack. When a wisp mask is supplied, it is dilated before
+              fitting the stripes.
+            </p>
+            <p>Returns the stripe-corrected stack.</p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>mask_bad_pixels(data, err, mask, std_threshold=10)</code></h3>
+            <p>
+              Builds an additional hot- and cold-pixel mask from exposure-level
+              and stack-level deviations.
+            </p>
+            <p>Returns a boolean mask with bad pixels marked <code>True</code>.</p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>build_wisp_regions(data, edges=None, max_comp_num=1, ...)</code></h3>
+            <p>
+              Interpolates missing pixels, detects segmented structures in a
+              stacked image, selects the brightest candidate regions, dilates
+              them, and optionally excludes nearby source regions.
+            </p>
+            <p>Returns <code>wmask, segment_map</code>.</p>
+          </section>
+        </section>
+
+        <section id="nmf">
+          <h2>NMF Fitting</h2>
+
+          <section class="api-item">
+            <h3><code>nmf_basic(data, invVar, A, W, n_iter=100, verbose=False)</code></h3>
+            <p>
+              Runs multiplicative weighted NMF updates for fixed initial
+              amplitudes <code>A</code> and components <code>W</code>. Inputs are
+              vectorized 2D arrays with shape <code>(n_exp, n_pix)</code>.
+            </p>
+            <p>Returns normalized <code>A, W</code>.</p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>nmf_iterative(data, invVar, n_comp, n_iter=100, init_amp_ratio=0.1, outliers=None, verbose=False)</code></h3>
+            <p>
+              Adds NMF components one at a time, refits all components after each
+              addition, and solves amplitudes for excluded outlier exposures with
+              non-negative least squares.
+            </p>
+            <p>Returns <code>A_all, W</code>.</p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>vectorize_data(data, err, mask, valid_region)</code></h3>
+            <p>
+              Selects pixels that contain finite data and belong to the wisp
+              region, flattens each exposure, converts errors to inverse
+              variance, and zeroes masked or NaN pixels.
+            </p>
+            <p>Returns <code>data, invVar, selected_pixels</code>.</p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>transform2D(data, selected_pixels, fill_value=0)</code></h3>
+            <p>
+              Restores vectorized 1D data or component stacks to the original 2D
+              image geometry.
+            </p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>identify_outliers(A, std_threshold=8)</code></h3>
+            <p>
+              Uses sigma-clipped component amplitudes to flag exposures with
+              unusually large NMF coefficients.
+            </p>
+            <p>Returns sorted unique exposure indices.</p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>nmf_beta.py</code> variants</h3>
+            <p>
+              <code>nmf_iterative_correct1f</code> alternates NMF fitting with
+              beta 1/f stripe estimation. <code>nmf_iterative_fit_flat</code>
+              adds a flat component alongside the wisp components. These paths
+              are useful for template experiments and should be validated against
+              the standard <code>nmf.py</code> workflow before adoption.
+            </p>
+          </section>
+        </section>
+
+        <section id="postprocess">
+          <h2>Postprocessing</h2>
+
+          <section class="api-item">
+            <h3><code>estimate_errors(residual, invVar, outliers, selected_pixels, nan_pixels)</code></h3>
+            <p>
+              Removes outlier exposures, stacks residuals to estimate template
+              bias, subtracts expected noise power from residual power, and
+              interpolates and smooths the resulting uncertainty map.
+            </p>
+            <p>Returns <code>wisp_bias, wisp_err</code>.</p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>interpolate_wisp_nans(wisp, nan_mask, sigma=1)</code></h3>
+            <p>
+              Fills NaN pixels in one or more wisp maps using Gaussian-smoothed
+              neighboring values and coverage weights.
+            </p>
+          </section>
+        </section>
+
+        <section id="utils">
+          <h2>Utilities</h2>
+
+          <section class="api-item">
+            <h3><code>rectify_db(dbname, ndilate=2, mask_jumps=False)</code></h3>
+            <p>
+              Loads a FITS database file, validates science errors and DQ values,
+              builds a source and quality mask, and returns science, error, DQ,
+              metadata, and mask arrays.
+            </p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>load_stsci_wisp(wisp_path, downsample=4, ext=0)</code></h3>
+            <p>
+              Loads an STScI wisp reference, downsamples both the template and
+              mask, and keeps the largest connected wisp-mask region.
+            </p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>load_stsci_flat(detector, filter, downsample=4)</code></h3>
+            <p>
+              Resolves the newest matching CRDS flat for a detector and filter,
+              loads the flat file, and downsamples it.
+            </p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>show_images</code>, <code>plot_comps</code>, and <code>plot_amps</code></h3>
+            <p>
+              Provide quick-look diagnostics for exposure stacks, NMF
+              components, and fitted amplitudes.
+            </p>
+          </section>
+
+          <section class="api-item">
+            <h3><code>pca(cal, err, mask, wisp_region)</code></h3>
+            <p>
+              Runs an inverse-variance weighted PCA diagnostic on selected wisp
+              pixels and returns amplitudes and restored 2D components.
+            </p>
+          </section>
+        </section>
+        <footer class="doc-footer">
+          <p>&copy; 2026 Zihao Wu. This website is built with assistance from Codex.</p>
+        </footer>
+      </main>
+    </div>
+
+    <script src="site.js"></script>
+  </body>
+</html>
