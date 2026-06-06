@@ -30,17 +30,13 @@ Example wisp subtraction:
 
 ![Example NMFwisp subtraction](docs/example.png)
 
-Wisp morphology across affected NIRCam detectors:
-
-![Wisp morphology across affected NIRCam detectors](docs/all_wisps.jpg)
-
-Wisp morphology variation:
-
-![Wisp morphology variation](docs/wisp_variation_example.jpg)
-
 Multi-component NMF wisp features:
 
 ![Multi-component NMF wisp features](docs/wisp_components.png)
+
+Wisp morphology in all contaminated NIRCam detectors:
+
+![Wisp morphology across affected NIRCam detectors](docs/all_wisps.jpg)
 
 ## Reference
 

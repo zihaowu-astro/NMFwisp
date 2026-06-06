@@ -31,6 +31,7 @@
           <a href="developer-api.html">Developer API</a>
           <p class="nav-caption">On This Page</p>
           <a href="#overview">Overview</a>
+          <a href="#example-data">Example Data</a>
           <a href="#workflow">Workflow</a>
           <a href="#requirements">Requirements</a>
           <a href="#arguments">Arguments</a>
@@ -57,17 +58,28 @@
             The LW images do not need to match the exact configuration of the
             SW image. 
           </p>
+        </section>
+
+        <section id="example-data">
+          <h2>Example Data</h2>
           <p>
-            Example data can be downloaded with
-            <code>download_data_script.ipynb</code> in the repository root.
+            The repository provides a helper script to download example data for
+            source-mask generation. It downloads one SW target image to
+            <code>./data</code> and multiple LW images to
+            <code>./data/LW_data</code>. The SW image is the image to mask for
+            wisp subtraction, and the LW images are stacked to build the
+            segmentation map.
           </p>
+          <p>Install the download dependency and run:</p>
+          <pre><code>python -m pip install astroquery
+python download_example_data.py --data_dir ../data</code></pre>
         </section>
 
         <section id="workflow">
           <h2>Workflow</h2>
           <p>First, build a segmentation map from the LW images:</p>
           <pre><code>python nmfwisp/sourcemask.py \
-  --exp_dir ./data --lw_dir ./data/LW_data \
+  --exp_dir ../data --lw_dir ../data/LW_data \
   --make_segmap 1 --segname "segmap.fits"</code></pre>
 
           <p>
