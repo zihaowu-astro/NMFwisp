@@ -389,10 +389,12 @@ def get_parser():
     # ims
     parser.add_argument("--exp_dir", type=str, default="./",
                         help="directory containing the input exposures")
-    parser.add_argument("--lw_pattern", type=str, default="*long*tweak.fits",
-                        help="pattern to match the LW exposures for making the segmap (e.g. *long*bsub.fits)")
-    parser.add_argument("--exp_pattern", type=str, default="*bsub.fits",
-                        help="pattern to match the exposures to mask (e.g. *bsub.fits)")
+    parser.add_argument("--lw_dir", type=str, default="./",
+                        help="directory containing the LW exposures for making the segmap")
+    parser.add_argument("--lw_pattern", type=str, default="*long*.fits",
+                        help="pattern to match the LW exposures for making the segmap (e.g. *long*.fits)")
+    parser.add_argument("--exp_pattern", type=str, default="*.fits",
+                        help="pattern to match the exposures to mask (e.g. *cal.fits)")
     # seg
     parser.add_argument("--make_segmap", type=int, default=0,
                         help="if 1, make the segmap on the fly from lw_pattern; if 0, read from segname")
@@ -424,16 +426,16 @@ if __name__ == "__main__":
 
     # --- make the segmap ---
     if args.make_segmap & (rank == 0):
-        long_pattern = f"{args.exp_dir}/{args.lw_pattern}"
+        long_pattern = f"{args.lw_dir}/{args.lw_pattern}"
         det_images = glob.glob(long_pattern)
         assert len(det_images) > 0, long_pattern
         segmap_hdul, stack = images_to_seg(det_images)
         segmap_hdul.writeto(args.segname, overwrite=True)
+        print(f"wrote {args.segname}")
         #segtype = "otf"
 
     if not bool(args.make_segmap):
         segmap_hdul = fits.open(args.segname)
-        logger.info(f"working on {args.pid}")
         exp_pattern = f"{args.exp_dir}/{args.exp_pattern}"
         files = glob.glob(exp_pattern)
         if len(files) == 0:
@@ -449,4 +451,5 @@ if __name__ == "__main__":
             seg = project_segmap(segmap_hdul, iname)
             seg.header["SEGN"] = args.segname
             seg.writeto(mname, overwrite=True)
+            print(f"wrote {mname}")
 
