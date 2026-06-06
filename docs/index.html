@@ -23,7 +23,7 @@
 
     <div class="layout" id="top">
       <aside class="sidebar" id="sidebar">
-        <div class="sidebar-title">NMFwisp</div>
+        <div class="sidebar-title"><a class="sidebar-title-link" href="index.html">NMFwisp</a></div>
         <nav aria-label="Documentation navigation">
           <p class="nav-caption">User Guide</p>
           <a href="#overview">Overview</a>
@@ -32,12 +32,13 @@
           <a href="#components">NMF Components</a>
           <a href="#templates">Templates</a>
           <a href="#advanced">Advanced Usage</a>
+          <a href="source-mask.html">Source Masks</a>
           <p class="nav-caption">Reference</p>
           <a href="#api">API Reference</a>
           <a href="developer-api.html">Developer API</a>
           <a href="#wisp-morphology-variation">Wisp Morphology Variation</a>
           <a href="#citation">Citation</a>
-          <a href="https://github.com/zihaowu-astro/nmfwisp">Repository</a>
+          <a href="https://github.com/zihaowu-astro/nmfwisp">GitHub Repository</a>
           <a href="https://arxiv.org/pdf/2601.15958">Paper PDF</a>
         </nav>
       </aside>
@@ -139,6 +140,22 @@ corrected = data - wisp</code></pre>
             <img src="example.png" alt="Example NMFwisp subtraction showing data, corrected data, and wisp model.">
             <figcaption>Example data, wisp-subtracted data, and fitted wisp model.</figcaption>
           </figure>
+          <p>
+            Example data are available here:
+            <a href="https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/example-data.tar.gz">example-data.tar.gz</a>.
+          </p>
+          <p>
+          You may also download the example data with the following commands:
+          </p>
+          <pre><code>curl -L -O https://github.com/zihaowu-astro/NMFwisp/releases/download/v1.0/example-data.tar.gz
+tar -xzf example-data.tar.gz</code></pre>
+          <p>
+            The source mask can be built from long-wavelength (LW) NIRCam
+            images, which are usually obtained together with the
+            short-wavelength (SW) images. We provide a source-mask script,
+            adapted from the JADES DR5 reduction pipeline. Please see the
+            <a href="source-mask.html">Source Mask</a> page for details.
+          </p>
         </section>
 
         <section id="api">

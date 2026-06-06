@@ -171,6 +171,19 @@ img {
   text-decoration: none;
 }
 
+.sidebar .sidebar-title .sidebar-title-link,
+.sidebar .sidebar-title .sidebar-title-link:hover,
+.sidebar .sidebar-title .sidebar-title-link:focus {
+  display: inline !important;
+  padding: 0 !important;
+  color: #ffffff !important;
+  background: transparent !important;
+  font-size: 1.45rem !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  text-decoration: none !important;
+}
+
 .nav-caption {
   margin: 18px 0 4px;
   color: var(--sidebar-muted);
@@ -243,6 +256,12 @@ table {
   margin: 16px 0 24px;
   border-collapse: collapse;
   font-size: 0.95rem;
+}
+
+.arguments-table th:first-child,
+.arguments-table td:first-child {
+  width: 24%;
+  min-width: 140px;
 }
 
 th,

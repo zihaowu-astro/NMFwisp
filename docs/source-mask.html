@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NMFwisp source masks</title>
+    <meta
+      name="description"
+      content="Source-mask generation workflow for NMFwisp wisp subtraction."
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="project" href="index.html">NMFwisp</a>
+        <button class="menu-button" type="button" aria-expanded="false" aria-controls="sidebar">
+          Contents
+        </button>
+      </div>
+    </header>
+
+    <div class="layout" id="top">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-title"><a class="sidebar-title-link" href="index.html">NMFwisp</a></div>
+        <nav aria-label="Source-mask navigation">
+          <p class="nav-caption">Documentation</p>
+          <a href="index.html">User Guide</a>
+          <a href="source-mask.html">Source Masks</a>
+          <a href="developer-api.html">Developer API</a>
+          <p class="nav-caption">On This Page</p>
+          <a href="#overview">Overview</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#requirements">Requirements</a>
+          <a href="#arguments">Arguments</a>
+        </nav>
+      </aside>
+
+      <main class="content" id="main-content">
+        <h1>Source Masks</h1>
+        <p class="lead">
+          This is a script for generating source masks for NMFwisp.
+        </p>
+
+        <section id="overview">
+          <h2>Overview</h2>
+          <p>
+            The source mask can be built from long-wavelength (LW) NIRCam
+            images, which are usually obtained together with the
+            short-wavelength (SW) images. LW images provide a clean
+            source-detection image because they are not affected by wisps.
+          </p>
+          <p>
+            The script stacks all relevant LW images, detects sources in the
+            stack, and projects the segmentation map onto the SW image that needs wisp subtraction.
+            The LW images do not need to match the exact configuration of the
+            SW image. 
+          </p>
+          <p>
+            Example data can be downloaded with
+            <code>download_data_script.ipynb</code> in the repository root.
+          </p>
+        </section>
+
+        <section id="workflow">
+          <h2>Workflow</h2>
+          <p>First, build a segmentation map from the LW images:</p>
+          <pre><code>python nmfwisp/sourcemask.py \
+  --exp_dir ./data --lw_dir ./data/LW_data \
+  --make_segmap 1 --segname "segmap.fits"</code></pre>
+
+          <p>
+            Then switch to the mode of building masks from the segmentation map
+            by setting <code>--make_segmap 0</code>:
+          </p>
+          <pre><code>python nmfwisp/sourcemask.py \
+  --exp_dir ../data --lw_dir ../data/LW_data \
+  --make_segmap 0 --segname "segmap.fits"</code></pre>
+        </section>
+
+        <section id="requirements">
+          <h2>Requirements</h2>
+          <p>
+            Source-mask generation requires the NMFwisp runtime dependencies
+            plus packages for JWST data models, source detection, drizzling, and
+            reprojection.
+          </p>
+          <pre><code>python -m pip install astropy scipy photutils reproject jwst "drizzle&lt;2"</code></pre>
+          <p>
+            The <code>drizzle</code> dependency is pinned below version 2 for
+            compatibility with the source-mask script.
+          </p>
+        </section>
+
+        <section id="arguments">
+          <h2>Arguments</h2>
+          <table class="arguments-table">
+            <thead>
+              <tr>
+                <th>Argument</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>--exp_dir</code></td>
+                <td><code>./</code></td>
+                <td>Directory containing the target SW images to mask.</td>
+              </tr>
+              <tr>
+                <td><code>--lw_dir</code></td>
+                <td><code>./</code></td>
+                <td>Directory containing LW images used to build the segmentation map.</td>
+              </tr>
+              <tr>
+                <td><code>--exp_pattern</code></td>
+                <td><code>*.fits</code></td>
+                <td>Pattern used to select target SW images from <code>exp_dir</code>.</td>
+              </tr>
+              <tr>
+                <td><code>--lw_pattern</code></td>
+                <td><code>*long*.fits</code></td>
+                <td>Pattern used to select LW images from <code>lw_dir</code>.</td>
+              </tr>
+              <tr>
+                <td><code>--make_segmap</code></td>
+                <td><code>0</code></td>
+                <td>Set <code>1</code> to create the segmentation map and <code>0</code> to use the segmentation map to create source masks.</td>
+              </tr>
+              <tr>
+                <td><code>--segname</code></td>
+                <td><code>None</code></td>
+                <td>Name of the segmentation-map FITS file to write or read.</td>
+              </tr>
+              <tr>
+                <td><code>--regenerate</code></td>
+                <td><code>1</code></td>
+                <td>If nonzero, overwrite existing mask files.</td>
+              </tr>
+              <tr>
+                <td><code>--mask_dir</code></td>
+                <td><code>None</code></td>
+                <td>Optional output directory. Defaults to <code>exp_dir</code>.</td>
+              </tr>
+              <tr>
+                <td><code>--mask_suffix</code></td>
+                <td><code>_smask.fits</code></td>
+                <td>Suffix added for output mask files.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+
+        <footer class="doc-footer">
+          <p>&copy; 2026 Zihao Wu. This website is built with assistance from Codex.</p>
+        </footer>
+      </main>
+    </div>
+
+    <script src="site.js"></script>
+  </body>
+</html>
