@@ -1,12 +1,10 @@
 # NMFwisp
 
-NMFwisp subtracts JWST/NIRCam wisp artifacts using multi-component,
-detector- and filter-specific NMF templates.
+The morphology of JWST wisp artifacts can vary between observations, making single-template subtraction methods prone to residual artifacts. NMFwisp uses a multi-component template approach that captures these morphological variations effectively, resulting in cleaner wisp subtraction and reduced residuals compared to the standard STScI method.
 
-For usage examples, source-mask generation, API details, developer notes, and
-citation information, please see the documentation website:
+NMFwisp is developed as part of the data reduction pipeline for the JWST Advanced Deep Extragalactic Survey (JADES), one of the largest and deepest JWST programs.
 
-https://zihaowu-astro.github.io/NMFwisp/
+This package is easy to install and use. For installation instructions, usage examples, and detailed documentation, please visit: https://zihaowu-astro.github.io/NMFwisp/
 
 ## Installation
 
