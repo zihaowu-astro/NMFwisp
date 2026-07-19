@@ -28,9 +28,33 @@ def test_fit_wisp_bundled_templates():
     assert np.isfinite(wisp).all()
 
 
-def test_missing_template_raises():
-    data = np.zeros((2048, 2048), "f4")
+def test_missing_template_returns_zeros_with_warning():
+    """A whitelisted combination with no shipped template file (F162M) should
+    behave like the other no-wisp cases: warn and return zero arrays."""
+    data = np.ones((2048, 2048), "f4")
     err = np.ones((2048, 2048), "f4")
     mask = np.zeros((2048, 2048), bool)
-    with pytest.raises(FileNotFoundError, match="F162M"):
-        fit_wisp(data, err, mask, detector_name="nrcb4", filter_name="F162M")
+    with pytest.warns(UserWarning, match="F162M"):
+        wisp, wisp_e = fit_wisp(data, err, mask,
+                                detector_name="nrcb4", filter_name="F162M")
+    assert wisp.shape == data.shape
+    assert not wisp.any()
+    assert not wisp_e.any()
+
+
+def test_no_wisp_cases_return_zeros_with_warning():
+    """Filters/detectors without wisps warn and return (wisp, wisp_e) zero
+    arrays, unpackable by the fit_wisp callers."""
+    data = np.ones((2048, 2048), "f4")
+    err = np.ones((2048, 2048), "f4")
+    mask = np.zeros((2048, 2048), bool)
+    for detector_name, filter_name in [("nrcb4", "F070W"),   # filter without wisps
+                                       ("nrca1", "F200W"),   # detector without wisps
+                                       ("nrcb4", "F480M")]:  # filter without templates
+        with pytest.warns(UserWarning):
+            wisp, wisp_e = fit_wisp(data, err, mask,
+                                    detector_name=detector_name,
+                                    filter_name=filter_name)
+        assert wisp.shape == data.shape
+        assert not wisp.any()
+        assert not wisp_e.any()
