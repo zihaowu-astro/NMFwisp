@@ -633,7 +633,7 @@ def load_wisp_templates(wisp_path, detector_name, filter_name):
     """
     High-level function to load WISP templates from a given path.
     """
-    det, filt = detector_name, filter_name
+    det, filt = detector_name.lower(), filter_name.lower()
     if wisp_path is None:
         path = resources.files("nmfwisp").joinpath("templates")
     else:
@@ -756,6 +756,11 @@ def estimate_wisp_standard(data, err, mask, wisp_path, detector_name, filter_nam
         return wisp
     
     wisp_template, template_err, wmask, high_snr_region = load_wisp_templates(wisp_path, detector_name, filter_name)
+    if wisp_template is None:
+        raise FileNotFoundError(
+            f"No wisp template found for detector '{detector_name}' and filter '{filter_name}'"
+            + (f" in {wisp_path}" if wisp_path is not None else " in the bundled templates")
+        )
     if data.ndim == 2:
         data, err, mask = process_data(data, err, mask, wmask)
     else:
