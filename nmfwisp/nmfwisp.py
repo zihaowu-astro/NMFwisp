@@ -633,7 +633,7 @@ def load_wisp_templates(wisp_path, detector_name, filter_name):
     """
     High-level function to load WISP templates from a given path.
     """
-    det, filt = detector_name, filter_name
+    det, filt = detector_name.lower(), filter_name.lower()
     if wisp_path is None:
         path = resources.files("nmfwisp").joinpath("templates")
     else:
@@ -742,20 +742,20 @@ def estimate_wisp_standard(data, err, mask, wisp_path, detector_name, filter_nam
     if wisp_path is not None:
         assert os.path.exists(wisp_path), f"Wisp path does not exist: {wisp_path}"
     if filter_name == 'F070W':
-        Warning("F070W does not have wisps, return zero array.")
-        wisp = np.zeros_like(data)
-        return wisp
+        warnings.warn("F070W does not have wisps, return zero array.")
+        return np.zeros_like(data), np.zeros_like(data)
     if detector_name in ['nrca1', 'nrca2', 'nrcb1', 'nrcb2']:
-        Warning(f"{detector_name} detector does not have wisps, return zero array.")
-        wisp = np.zeros_like(data)
-        return wisp
+        warnings.warn(f"{detector_name} detector does not have wisps, return zero array.")
+        return np.zeros_like(data), np.zeros_like(data)
     assert detector_name in ['nrca3', 'nrca4', 'nrcb3', 'nrcb4'], f"Invalid detector name: {detector_name}"
     if filter_name not in ['F090W', 'F115W', 'F150W', 'F200W', 'F162M', 'F182M', 'F210M']:
-        Warning(f"{filter_name} templates are not available, return zero array.")
-        wisp = np.zeros_like(data)
-        return wisp
-    
+        warnings.warn(f"{filter_name} templates are not available, return zero array.")
+        return np.zeros_like(data), np.zeros_like(data)
+
     wisp_template, template_err, wmask, high_snr_region = load_wisp_templates(wisp_path, detector_name, filter_name)
+    if wisp_template is None:
+        warnings.warn(f"No wisp template found for detector '{detector_name}' and filter '{filter_name}', return zero array.")
+        return np.zeros_like(data), np.zeros_like(data)
     if data.ndim == 2:
         data, err, mask = process_data(data, err, mask, wmask)
     else:
